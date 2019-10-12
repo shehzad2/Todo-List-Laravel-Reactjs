@@ -31,10 +31,8 @@
           title: this.state.title,
           description: this.state.description
         }
-
         axios.post('/viame/api/save-add-task', task)
           .then(response => {
-            // redirect to the homepage
             history.push('/viame/')
           })
           .catch(error => {

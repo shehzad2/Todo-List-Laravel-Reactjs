@@ -55752,7 +55752,6 @@ function (_Component) {
         description: this.state.description
       };
       axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/viame/api/save-add-task', task).then(function (response) {
-        // redirect to the homepage
         history.push('/viame/');
       })["catch"](function (error) {
         _this2.setState({
@@ -55891,57 +55890,36 @@ function (_Component) {
   _createClass(App, [{
     key: "handleSubmitAddTaskList",
     value: function handleSubmitAddTaskList(event) {
-      var _this2 = this;
-
+      var current = this;
       event.preventDefault();
       var form = event.target;
-      var data = new FormData(form);
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = data.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var name = _step.value;
-          var input = form.elements[name];
-          var parserName = input.dataset.parse;
-
-          if (parserName) {
-            var parser = inputParsers[parserName];
-            var parsedValue = parser(data.get(name));
-            data.set(name, parsedValue);
-          }
+      var title = form.elements['title'].value;
+      var description = form.elements['description'].value;
+      var axiosConfig = {
+        headers: {
+          'x-access-token': localStorage.getItem('user-id')
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
+      };
+      axios.post('https://engine-staging.viame.ae/assessment/user/task', {
+        todolist: {
+          title: title,
+          description: description,
+          status: 1
         }
-      }
-
-      fetch('/viame/api/save-add-task', {
-        method: 'POST',
-        body: data
-      }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
+      }, axiosConfig).then(function (response) {
         $('#add_new_task').modal('hide');
-
-        _this2.setState({
-          TaskListData: data
+        var config = {
+          headers: {
+            'x-access-token': localStorage.getItem('user-id')
+          }
+        };
+        axios.get('https://engine-staging.viame.ae/assessment/user/list', config).then(function (response) {
+          current.setState({
+            TaskListData: response.data
+          });
         });
       });
     }
-    /*<Route exact path='/viame/' component={TaskList} />*/
-
   }, {
     key: "render",
     value: function render() {
@@ -56178,49 +56156,17 @@ function (_React$Component) {
     value: function handleSubmit(event) {
       event.preventDefault();
       var form = event.target;
-      var data = new FormData(form);
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = data.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var name = _step.value;
-          var input = form.elements[name];
-          var parserName = input.dataset.parse;
-
-          if (parserName) {
-            var parser = inputParsers[parserName];
-            var parsedValue = parser(data.get(name));
-            data.set(name, parsedValue);
-          }
+      var email = form.elements['email'].value;
+      var password = form.elements['password'].value;
+      axios.post('https://engine-staging.viame.ae/assessment/login', {
+        users: {
+          email: email,
+          password: password
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      fetch('/viame/api/get-login', {
-        method: 'POST',
-        body: data
       }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        if (data.status == 200) {
-          localStorage.setItem('user-id', data.data.token);
-          localStorage.setItem('user-email', data.data.email);
-          window.location.reload();
-        }
+        localStorage.setItem('user-id', response.data.token);
+        localStorage.setItem('user-email', response.data.email);
+        window.location.reload();
       });
     }
   }, {
@@ -56228,47 +56174,15 @@ function (_React$Component) {
     value: function handleSubmitRegister(event) {
       event.preventDefault();
       var form = event.target;
-      var data = new FormData(form);
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = data.keys()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var name = _step2.value;
-          var input = form.elements[name];
-          var parserName = input.dataset.parse;
-
-          if (parserName) {
-            var parser = inputParsers[parserName];
-            var parsedValue = parser(data.get(name));
-            data.set(name, parsedValue);
-          }
+      var email = form.elements['email'].value;
+      var password = form.elements['password'].value;
+      axios.post('https://engine-staging.viame.ae/assessment/users', {
+        users: {
+          email: email,
+          password: password
         }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-            _iterator2["return"]();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
-
-      fetch('/viame/api/save-register', {
-        method: 'POST',
-        body: data
       }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        if (data.status == 200) {
-          window.location.reload();
-        }
+        window.location.reload();
       });
     }
   }, {
@@ -56497,30 +56411,8 @@ function (_Component) {
   }
 
   _createClass(TaskList, [{
-    key: "changeStatus",
-    value: function changeStatus(index, data_id) {
-      var current = this;
-      var data_user_id = localStorage.getItem('user-id');
-      var form = new FormData();
-      form.append('_id', data_id);
-      form.append('status', index);
-      form.append('user_id', data_user_id);
-      fetch('/viame/api/change-status', {
-        method: 'POST',
-        body: form
-      }).then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        if (data.code == 200) {
-          current.setState({
-            Tasks: data.data
-          });
-        } else {}
-      });
-    }
-  }, {
-    key: "componentDidMount",
-    value: function componentDidMount() {
+    key: "ajaxCallFunction",
+    value: function ajaxCallFunction() {
       var _this2 = this;
 
       var config = {
@@ -56528,18 +56420,60 @@ function (_Component) {
           'x-access-token': localStorage.getItem('user-id')
         }
       };
-      axios__WEBPACK_IMPORTED_MODULE_1___default.a.get('/viame/api/get-task', config).then(function (response) {
-        if (response.data.code == 200) {
-          _this2.setState({
-            Tasks: response.data.data
-          });
+      axios__WEBPACK_IMPORTED_MODULE_1___default.a.get('https://engine-staging.viame.ae/assessment/user/list', config).then(function (dataresponse) {
+        _this2.setState({
+          Tasks: dataresponse.data
+        });
+      });
+    }
+  }, {
+    key: "changeStatus",
+    value: function changeStatus(index, data_id, title, description) {
+      var _this3 = this;
+
+      var current = this;
+      var config = {
+        headers: {
+          'x-access-token': localStorage.getItem('user-id')
         }
+      };
+
+      if (index == 0) {
+        axios__WEBPACK_IMPORTED_MODULE_1___default.a["delete"]('https://engine-staging.viame.ae/assessment/user/task/' + data_id, config).then(function (response) {
+          _this3.ajaxCallFunction();
+        });
+      } else {
+        axios__WEBPACK_IMPORTED_MODULE_1___default.a.put('https://engine-staging.viame.ae/assessment/user/task/' + data_id, {
+          todolist: {
+            title: title,
+            description: description,
+            status: index
+          }
+        }, config).then(function (response) {
+          _this3.ajaxCallFunction();
+        });
+      }
+    }
+  }, {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this4 = this;
+
+      var config = {
+        headers: {
+          'x-access-token': localStorage.getItem('user-id')
+        }
+      };
+      axios__WEBPACK_IMPORTED_MODULE_1___default.a.get('https://engine-staging.viame.ae/assessment/user/list', config).then(function (response) {
+        _this4.setState({
+          Tasks: response.data
+        });
       });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
+      var _this5 = this;
 
       var Tasks = [];
 
@@ -56591,25 +56525,25 @@ function (_Component) {
           className: "dropdown-item",
           href: "#",
           onClick: function onClick() {
-            return _this3.changeStatus('2', task._id);
+            return _this5.changeStatus('2', task._id, task.title, task.description);
           }
         }, "Finish "), react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_3__["Link"], {
           className: "dropdown-item",
           to: " ",
           onClick: function onClick() {
-            return _this3.changeStatus('3', task._id);
+            return _this5.changeStatus('3', task._id, task.title, task.description);
           }
         }, "Working "), react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_3__["Link"], {
           className: "dropdown-item",
           to: " ",
           onClick: function onClick() {
-            return _this3.changeStatus('4', task._id);
+            return _this5.changeStatus('4', task._id, task.title, task.description);
           }
         }, "Cancel "), react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_3__["Link"], {
           className: "dropdown-item",
           to: " ",
           onClick: function onClick() {
-            return _this3.changeStatus('0', task._id);
+            return _this5.changeStatus('0', task._id, task.title, task.description);
           }
         }, "Delete ")))));
       }) : react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("tr", null, react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement("td", {

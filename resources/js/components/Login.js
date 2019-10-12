@@ -28,56 +28,31 @@ class Login extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
     const form = event.target;
-    const data = new FormData(form);
-
-    for (let name of data.keys()) {
-      const input = form.elements[name];
-      const parserName = input.dataset.parse;
-
-      if (parserName) {
-        const parser = inputParsers[parserName];
-        const parsedValue = parser(data.get(name));
-        data.set(name, parsedValue);
-      }
-    }
-     fetch('/viame/api/get-login', {
-      method: 'POST',
-      body: data,
-    }).then(response => response.json())
-       .then(data => {
-      if(data.status == 200){
-         localStorage.setItem('user-id',data.data.token);
-          localStorage.setItem('user-email',data.data.email);
-          window.location.reload();
-      }
-     
-      });
+    const email = form.elements['email'].value;
+    const password = form.elements['password'].value;
+     axios.post('https://engine-staging.viame.ae/assessment/login',{users:{
+          email:email,
+          password:password
+      }})
+    .then(function (response) {
+      localStorage.setItem('user-id',response.data.token);
+      localStorage.setItem('user-email',response.data.email);
+      window.location.reload();
+    })
   }
 
   handleSubmitRegister(event) {
     event.preventDefault();
     const form = event.target;
-    const data = new FormData(form);
-
-    for (let name of data.keys()) {
-      const input = form.elements[name];
-      const parserName = input.dataset.parse;
-
-      if (parserName) {
-        const parser = inputParsers[parserName];
-        const parsedValue = parser(data.get(name));
-        data.set(name, parsedValue);
-      }
-    }
-     fetch('/viame/api/save-register', {
-      method: 'POST',
-      body: data,
-    }).then(response => response.json())
-      .then(data => {
-      if(data.status == 200){
-      window.location.reload()
-    }
-      });
+    const email = form.elements['email'].value;
+    const password = form.elements['password'].value;
+     axios.post('https://engine-staging.viame.ae/assessment/users',{users:{
+          email:email,
+          password:password
+      }})
+    .then(function (response) {
+      window.location.reload();
+    })
   }
    render() {
     var { title, children } = this.props;

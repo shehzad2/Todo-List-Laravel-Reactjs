@@ -9,43 +9,53 @@ import axios from 'axios'
           Tasks: [],
         }
       }
-       changeStatus(index,data_id) {
+      ajaxCallFunction(){
+        var config = {
+            headers: {'x-access-token': localStorage.getItem('user-id')}
+        
+        };
+        axios.get('https://engine-staging.viame.ae/assessment/user/list',config).then(dataresponse => {
+        this.setState({
+            Tasks: dataresponse.data
+        })
+      })
+    }
+       changeStatus(index,data_id,title,description) {
         var current = this;
-        var data_user_id = localStorage.getItem('user-id');
-         const form = new FormData();
-         form.append('_id',data_id);
-         form.append('status',index);
-         form.append('user_id',data_user_id);
-        fetch('/viame/api/change-status', {
-          method: 'POST',
-          body: form,
-        }).then(response => response.json())
-           .then(data => {
-            if(data.code == 200){
-                current.setState({
-                    Tasks :data.data
-            })
-            }else{
+        var config = {
+            headers: {'x-access-token': localStorage.getItem('user-id')}
+        };
+        if(index == 0){
+          axios.delete('https://engine-staging.viame.ae/assessment/user/task/'+data_id,config).then(response => {
+            this.ajaxCallFunction();
+          })
+        }else{
+           axios.put('https://engine-staging.viame.ae/assessment/user/task/'+data_id,
+            {
+              todolist: {
+              title: title,
+              description:description,
+              status: index 
+              }
             }
-          });
+            ,config).then(response => {
+              this.ajaxCallFunction();
+          })
+        }
+        
     }
       componentDidMount () {
         var config = {
             headers: {'x-access-token': localStorage.getItem('user-id')}
         };
-        axios.get('/viame/api/get-task',config).then(response => {
-
-        if(response.data.code == 200){
-
+        axios.get('https://engine-staging.viame.ae/assessment/user/list',config).then(response => {
         this.setState({
-            Tasks: response.data.data
+            Tasks: response.data
           })
-        }
         })
       }
       render () {
          let  Tasks = [];
-
         if(this.props.Tasks != ''){
             Tasks = this.props.Tasks
         }else if(this.state.Tasks){
@@ -66,6 +76,7 @@ import axios from 'axios'
                     </thead>
                     <tbody id="add-table">
                          { (Tasks !='') ? (
+
                             Tasks.map(task => (
                         <tr >
                             <td key={task._id+'_title'}>{task.title}</td>
@@ -96,10 +107,10 @@ import axios from 'axios'
                                 View
                               </Link>
                                     <div className="dropdown-menu dv_table_action_dropdown">
-                                        <a className="dropdown-item" href='#'  onClick={() => this.changeStatus('2', task._id)}>Finish </a>
-                                        <Link className="dropdown-item" to=' '  onClick={() => this.changeStatus('3', task._id)}>Working </Link>
-                                        <Link className="dropdown-item"  to=' ' onClick={() => this.changeStatus('4', task._id)}>Cancel </Link>
-                                        <Link className="dropdown-item" to=' '  onClick={() => this.changeStatus('0', task._id)}>Delete </Link>
+                                        <a className="dropdown-item" href='#'  onClick={() => this.changeStatus('2', task._id,task.title,task.description)}>Finish </a>
+                                        <Link className="dropdown-item" to=' '  onClick={() => this.changeStatus('3', task._id,task.title,task.description)}>Working </Link>
+                                        <Link className="dropdown-item"  to=' ' onClick={() => this.changeStatus('4', task._id,task.title,task.description)}>Cancel </Link>
+                                        <Link className="dropdown-item" to=' '  onClick={() => this.changeStatus('0', task._id,task.title,task.description)}>Delete </Link>
                                     </div>
                                 </div>
                             </td>

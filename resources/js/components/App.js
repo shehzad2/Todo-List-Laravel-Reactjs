@@ -15,31 +15,33 @@
          this.handleSubmitAddTaskList = this.handleSubmitAddTaskList.bind(this);
       }
        handleSubmitAddTaskList(event) {
+        const current = this
         event.preventDefault();
-
         const form = event.target;
-        const data = new FormData(form);
-
-        for (let name of data.keys()) {
-          const input = form.elements[name];
-          const parserName = input.dataset.parse;
-
-          if (parserName) {
-            const parser = inputParsers[parserName];
-            const parsedValue = parser(data.get(name));
-            data.set(name, parsedValue);
-          }
-        }
-         fetch('/viame/api/save-add-task', {
-          method: 'POST',
-          body: data,
-        }).then(response => response.json())
-           .then(data => {
-           $('#add_new_task').modal('hide');
-            this.setState({ TaskListData: data });
-          });
+        const title = form.elements['title'].value;
+        const description = form.elements['description'].value;
+        let axiosConfig = {
+            headers: {
+                'x-access-token': localStorage.getItem('user-id')
+            }
+          };
+        axios.post('https://engine-staging.viame.ae/assessment/user/task',{
+        todolist: {
+        title:title,
+        description:description,
+        status: 1
+        }}, axiosConfig)
+        .then(function (response) {
+          $('#add_new_task').modal('hide');
+          var config = {
+            headers: {'x-access-token': localStorage.getItem('user-id')}
+              };
+              axios.get('https://engine-staging.viame.ae/assessment/user/list',config).then(response => {
+             current.setState({ TaskListData: response.data });
+              })
+            
+        })
       }
- /*<Route exact path='/viame/' component={TaskList} />*/
       render () {
         if( localStorage.getItem('user-email')){
         return (
